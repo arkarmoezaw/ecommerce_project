@@ -1,9 +1,17 @@
-import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { admin_login } from '../../store/Reducers/authReducer';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { admin_login, messageClear } from '../../store/Reducers/authReducer';
+import { PropagateLoader } from 'react-spinners';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminLogin() {
+  const navigate = useNavigate();
+
   const dispatch = useDispatch();
+  const { loader, errorMessage, successMessaage } = useSelector(
+    state => state.auth
+  );
   const [state, setState] = useState({
     email: '',
     password: ''
@@ -21,6 +29,41 @@ export default function AdminLogin() {
     dispatch(admin_login(state));
     console.log(state);
   }
+
+  const overrideStyle = {
+    display: 'flex',
+    margin: '0 auto',
+    height: '24px',
+    justifyContent: 'center',
+    alignItems: 'center'
+  };
+
+  useEffect(() => {
+    if (errorMessage) {
+      toast.error(errorMessage, {
+        duration: 4000,
+        position: 'top-right',
+        style: {
+          background: '#ff4d4f',
+          color: '#fff'
+        }
+      });
+    }
+
+    if (successMessaage) {
+      toast.success(successMessaage, {
+        duration: 4000,
+        position: 'top-right',
+        style: {
+          background: '#52c41a',
+          color: '#fff'
+        }
+      });
+
+      navigate('/admin/dashboard');
+    }
+    dispatch(messageClear());
+  }, [successMessaage, navigate, errorMessage, dispatch]);
   return (
     <div className="flex min-h-screen min-w-screen items-center justify-center bg-[#cdcae9]">
       <div className="w-87.5 p-2 text-white">
@@ -66,9 +109,18 @@ export default function AdminLogin() {
 
             <button
               type="submit"
+              disabled={loader}
               className="mb-3 w-full rounded-md bg-slate-800 px-7 py-2 text-white hover:shadow-lg hover:shadow-blue-300/50"
             >
-              Login
+              {loader ? (
+                <PropagateLoader
+                  cssOverride={overrideStyle}
+                  color="#fff"
+                  size={20}
+                />
+              ) : (
+                'Login'
+              )}
             </button>
           </form>
         </div>

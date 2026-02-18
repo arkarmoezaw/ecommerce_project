@@ -1,3 +1,7 @@
 export default function Sidebar() {
-  return <></>;
+  return (
+    <>
+      <h1>Sidebar</h1>
+    </>
+  );
 }

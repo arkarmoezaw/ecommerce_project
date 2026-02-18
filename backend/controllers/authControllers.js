@@ -15,7 +15,7 @@ export async function admin_login(req, res) {
       sendResponse(res, 401, { error: "Invalid password" });
     }
 
-    const token = await createToken({ id: admin._id, role: admin.role });
+    const token = await createToken({ id: admin.id, role: admin.role });
 
     res.cookie("access-token", token, {
       httpOnly: true,
@@ -23,6 +23,20 @@ export async function admin_login(req, res) {
     });
 
     sendResponse(res, 200, { message: "Login successful", token });
+  } catch (error) {
+    sendResponse(res, 500, { error: error.message });
+  }
+}
+
+export async function get_user(req, res) {
+  const { id, role } = req;
+  try {
+    if (role === "admin") {
+      const admin = await Admin.findById(id).select("-password");
+      sendResponse(res, 200, { userInfo: admin });
+    } else {
+      sendResponse(res, 403, { error: "Forbidden" });
+    }
   } catch (error) {
     sendResponse(res, 500, { error: error.message });
   }
